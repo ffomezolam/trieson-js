@@ -1,4 +1,6 @@
 /**
+ * Basic trie implementation
+ *
  * @module trieson
  */
 (function(name, context, definition) {
@@ -7,69 +9,18 @@
     else context[name] = definition();
 })('Trieson', this, function(/*deps*/) {
     /**
+     * Trie class
+     * TODO: set up initialization method
+     *
      * @class Trieson
      * @constructor
      */
     function Trieson() {
-        this.value = null;
-        this.children = {};
-        this._terminal = false;
+        this._root = null;
+        this._nodeType = null;
     }
 
     Trieson.prototype = {
-        /**
-         * Add a character to the trie
-         *
-         * @method _addChild
-         * @private
-         * @chainable
-         * @param {String} c Character to add
-         */
-        _addChild: function(c) {
-            if(c == null) return this;
-            if(!this.children[c]) this.children[c] = new Trieson();
-            return this;
-        },
-
-        /**
-         * Get a node from the trie
-         *
-         * @method _getChild
-         * @private
-         * @param {String} c Character to get
-         * @return {Trieson} Node associated with character
-         */
-        _getChild: function(c) {
-            if(this.children[c] == null) return null;
-            return this.children[c];
-        },
-
-        /**
-         * Remove a character from the trie
-         *
-         * @method _removeChild
-         * @private
-         * @chainable
-         * @param {String} c Character to remove
-         */
-        _removeChild: function(c) {
-            if(this.children[c] == null) return this;
-            delete this.children[c];
-            return this;
-        },
-
-        /**
-         * Test if child node exists
-         *
-         * @method _hasChild
-         * @private
-         * @param {String} c Character to test
-         * @return {Boolean} Whether child exists
-         */
-        _hasChild: function(c) {
-            return this.children[c] != null;
-        },
-
         /**
          * Test whether a string is in the trie
          *
@@ -78,13 +29,7 @@
          * @return {Boolean} Whether string is in trie
          */
         has: function(s) {
-            var n = this;
-            for (var i = 0, l = s.length; i < l; i ++) {
-                var c = s.charAt(i);
-                if(!n._hasChild(c)) return false;
-                n = n._getChild(c);
-            }
-            return n._terminal ? true : false;
+            return !!this.get(s);
         },
 
         /**
@@ -98,17 +43,33 @@
         add: function(s, d) {
             var i,
                 l = s.length,
-                n = this;
+                n = this._root;
 
             for (i = 0; i < l; i++) {
                 var c = s.charAt(i);
                 n = n._addChild(c)._getChild(c);
             }
 
-            n._terminal = true;
-            n.value = d;
+            n.value = d || true;
 
             return this;
+        },
+
+        /**
+         * Get data associated with string
+         *
+         * @method get
+         * @param {String} s String to query
+         * @return {any} Data associated with string
+         */
+        get: function(s) {
+            var n = this._root;
+            for (var i = 0, l = s.length; i < l; i ++) {
+                var c = s.charAt(i);
+                if(!n._hasChild(c)) return null;
+                n = n._getChild(c);
+            }
+            return n.value;
         }
     };
 
