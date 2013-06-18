@@ -4,18 +4,21 @@
  * @module trieson
  */
 
+var Container = require('../roulette/roulette');
+
 /**
- * Trie node class
+ * Trie weighted node class
  *
- * @class TriesonNode
+ * @class TriesonWeightedNode
  * @constructor
  */
-function TriesonNode() {
+function TriesonWeightedNode() {
     this.value = null;
     this.children = {};
+    this._collection = new Container();
 }
 
-TriesonNode.prototype = {
+TriesonWeightedNode.prototype = {
     /**
      * Add a character to the trie
      *
@@ -26,7 +29,9 @@ TriesonNode.prototype = {
      */
     add: function(c) {
         if(c == null) return this;
-        if(!this.children[c]) this.children[c] = new TriesonNode();
+        if(!this.children[c]) this.children[c] = new TriesonWeightedNode();
+        this._collection.add(c);
+        this._collection.setWeights();
         return this;
     },
 
@@ -39,8 +44,14 @@ TriesonNode.prototype = {
      * @return {Trieson} Node associated with character
      */
     get: function(c) {
-        if(this.children[c] == null) return null;
-        return this.children[c];
+        if(c != null) {
+            if(this.children[c] == null) return null;
+            return this.children[c];
+        } else {
+            // weighted selection
+            var child = this._collection.get();
+            return this.children[child];
+        }
     },
 
     /**
@@ -53,7 +64,8 @@ TriesonNode.prototype = {
      */
     remove: function(c) {
         if(this.children[c] == null) return this;
-        delete this.children[c];
+        this._collection.remove(c);
+        if(!this._collection.has(c)) delete this.children[c];
         return this;
     },
 
@@ -70,4 +82,4 @@ TriesonNode.prototype = {
     }
 };
 
-module.exports = TriesonNode;
+module.exports = TriesonWeightedNode;
