@@ -2,6 +2,7 @@
  * Basic trie implementation
  *
  * @module trieson
+ * @requires roulette
  */
 
 var Container = require('../roulette/roulette');
