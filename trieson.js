@@ -1,101 +1,91 @@
 /**
- * Basic trie implementation
+ * Trie implementation with trecherous motivations
  *
  * @module trieson
  */
 
-var triesonNode = require('./triesonNode');
-
-/**
- * Trie class
- * TODO: set up initialization method
- *
- * @class Trieson
- * @constructor
- */
-function Trieson() {
-    this._root = new triesonNode();
-}
-
-Trieson.prototype = {
+(function(name, context, definition) {
+    if(typeof module !== 'undefined' && module.exports) module.exports = definition();
+    else if(typeof define === 'function' && define.amd) define(definition);
+    else context[name] = definition();
+})("Trieson", this, function(/*deps*/) {
     /**
-     * Test whether a string is in the trie
+     * Trie class
+     * TODO: set up initialization method
      *
-     * @method has
-     * @param {String} s String to test
-     * @return {Boolean} Whether string is in trie
+     * @class Trieson
+     * @constructor
      */
-    has: function(s) {
-        return !!this.get(s);
-    },
+    function Trieson(v) {
+        this._root = new triesonNode();
+        this._next = {};
+        this._value = typeof v == 'undefined' ? null || v;
+    }
 
-    /**
-     * Add a string to the trie
-     *
-     * @method add
-     * @chainable
-     * @param {String} s String to add
-     * @param {any} [d] Data to associate with string
-     */
-    add: function(s, d) {
-        var i,
-            l = s.length,
-            n = this._root;
+    Trieson.prototype = {
+        /**
+         * Add a string to the trie
+         *
+         * @method add
+         * @chainable
+         * @param {String} s String to add
+         * @param {any} [d] Data to associate with string
+         */
+        add: function(s, d) {
+            if(s.length > 0) {
+                var c = s[0],
+                    r = s.substr(1);
 
-        for (i = 0; i < l; i++) {
-            var c = s.charAt(i);
-            n = n.add(c).get(c);
-        }
+                if(c in this._next) {
+                    // TODO: manage weights
+                } else {
+                    this._next[c] = r ? new Trieson(d) : new Trieson();
+                }
 
-        n.value = d || true;
-
-        return this;
-    },
-
-    /**
-     * Get data associated with string
-     *
-     * @method get
-     * @param {String} s String to query
-     * @return {any} Data associated with string
-     */
-    get: function(s) {
-        var n = this._root;
-        for (var i = 0, l = s.length; i < l; i ++) {
-            var c = s.charAt(i);
-            if(!n.has(c)) return null;
-            n = n.get(c);
-        }
-        return n.value;
-    },
-
-    /**
-     * Output trie as a string
-     *
-     * @method toString
-     * @return {String} String representation of the trie
-     */
-    toString: function() {
-        var n = this._root;
-
-        function getString(n) {
-            var keys = n.keys(),
-                l = keys.length,
-                string = '',
-                i;
-
-            for(i = 0; i < l; i++) {
-                var key = keys[i],
-                    next = getString(n.children[key]);
-
-                string += key + (next || "\n");
+                // add remaining characters recursively
+                return this._next[c].add(r, d);
             }
 
-            return string;
+            return this;
+        },
+
+        /**
+         * Get data associated with string
+         *
+         * @method get
+         * @param {String} s String to query
+         * @return {any} Data associated with string
+         */
+        get: function(s) {
+            var n = this._next;
+
+            for (var i = 0, l = s.length; i < l; i++) {
+                var c = s[i];
+
+                if(c in n) {
+                    n = n._next[c];
+
+                    if(i == s.length - 1) {
+                        // reached end of string
+                        return n._value;
+                    }
+                } else {
+                    break;
+                }
+            }
+
+            return null;
+        },
+
+        /**
+         * Test whether a string is in the trie
+         *
+         * @method has
+         * @param {String} s String to test
+         * @return {Boolean} Whether string is in trie
+         */
+        has: function(s) {
+            return this.get(s) !== null;
         }
-
-        return getString(n);
-    }
-};
-
-module.exports = Trieson;
+    };
+});
