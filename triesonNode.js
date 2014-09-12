@@ -20,7 +20,6 @@ TriesonNode.prototype = {
      * Add a character to the trie
      *
      * @method add
-     * @private
      * @chainable
      * @param {String} c Character to add
      */
@@ -34,7 +33,6 @@ TriesonNode.prototype = {
      * Get a node from the trie
      *
      * @method get
-     * @private
      * @param {String} c Character to get
      * @return {Trieson} Node associated with character
      */
@@ -47,7 +45,6 @@ TriesonNode.prototype = {
      * Remove a character from the trie
      *
      * @method remove
-     * @private
      * @chainable
      * @param {String} c Character to remove
      */
@@ -61,12 +58,40 @@ TriesonNode.prototype = {
      * Test if child node exists
      *
      * @method has
-     * @private
      * @param {String} c Character to test
      * @return {Boolean} Whether child exists
      */
     has: function(c) {
         return this.children[c] != null;
+    },
+
+    /**
+     * Return keys as sorted array
+     *
+     * @method keys
+     * @return {Array} Sorted array of keys
+     */
+    keys: function() {
+        var keys = [];
+        for(var k in this.children) keys.push(k);
+        return keys.sort();
+    },
+
+    /**
+     * Return children as array in key-sorted order
+     *
+     * @method toArray
+     * @return {Array} Sorted array of children
+     */
+    toArray: function() {
+        var keys = this.keys(),
+            children = [],
+            l = keys.length,
+            i;
+
+        for(i = 0; i < l; i++) children.push(this.children[keys[i]]);
+
+        return children;
     }
 };
 

@@ -21,10 +21,9 @@ function TriesonWeightedNode() {
 
 TriesonWeightedNode.prototype = {
     /**
-     * Add a character to the trie
+     * Add a child to the node
      *
      * @method add
-     * @private
      * @chainable
      * @param {String} c Character to add
      */
@@ -37,11 +36,10 @@ TriesonWeightedNode.prototype = {
     },
 
     /**
-     * Get a node from the trie
+     * Get a child from the node explicitly or be weighted random selection
      *
      * @method get
-     * @private
-     * @param {String} c Character to get
+     * @param {String} [c] Character to get
      * @return {Trieson} Node associated with character
      */
     get: function(c) {
@@ -51,15 +49,15 @@ TriesonWeightedNode.prototype = {
         } else {
             // weighted selection
             var child = this._collection.get();
-            return this.children[child];
+            return child;
+            //return this.children[child];
         }
     },
 
     /**
-     * Remove a character from the trie
+     * Remove a child from the node
      *
      * @method remove
-     * @private
      * @chainable
      * @param {String} c Character to remove
      */
@@ -74,12 +72,26 @@ TriesonWeightedNode.prototype = {
      * Test if child node exists
      *
      * @method has
-     * @private
      * @param {String} c Character to test
      * @return {Boolean} Whether child exists
      */
     has: function(c) {
         return this.children[c] != null;
+    },
+
+    /**
+     * Return an array of sorted child keys
+     *
+     * @method keys
+     * @return {Array} Array of sorted child keys
+     */
+    keys: function() {
+        var chars = [];
+        for(var key in this.children) {
+            chars.push(key);
+        }
+        chars.sort();
+        return chars;
     }
 };
 
