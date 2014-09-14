@@ -8,84 +8,157 @@
     if(typeof module !== 'undefined' && module.exports) module.exports = definition();
     else if(typeof define === 'function' && define.amd) define(definition);
     else context[name] = definition();
-})("Trieson", this, function(/*deps*/) {
+})("Trieson", this, function() {
     /**
-     * Trie class
-     * TODO: set up initialization method
+     * Trieson constructor
      *
      * @class Trieson
      * @constructor
      */
-    function Trieson(v) {
-        this._root = new triesonNode();
-        this._next = {};
-        this._value = typeof v == 'undefined' ? null || v;
+    function Trieson() {
+        this._data = [];
+        this._chooser = null;
     }
 
-    Trieson.prototype = {
-        /**
-         * Add a string to the trie
-         *
-         * @method add
-         * @chainable
-         * @param {String} s String to add
-         * @param {any} [d] Data to associate with string
-         */
-        add: function(s, d) {
-            if(s.length > 0) {
-                var c = s[0],
-                    r = s.substr(1);
-
-                if(c in this._next) {
-                    // TODO: manage weights
-                } else {
-                    this._next[c] = r ? new Trieson(d) : new Trieson();
-                }
-
-                // add remaining characters recursively
-                return this._next[c].add(r, d);
-            }
-
-            return this;
-        },
-
-        /**
-         * Get data associated with string
-         *
-         * @method get
-         * @param {String} s String to query
-         * @return {any} Data associated with string
-         */
-        get: function(s) {
-            var n = this._next;
-
-            for (var i = 0, l = s.length; i < l; i++) {
-                var c = s[i];
-
-                if(c in n) {
-                    n = n._next[c];
-
-                    if(i == s.length - 1) {
-                        // reached end of string
-                        return n._value;
-                    }
-                } else {
-                    break;
-                }
-            }
-
-            return null;
-        },
-
-        /**
-         * Test whether a string is in the trie
-         *
-         * @method has
-         * @param {String} s String to test
-         * @return {Boolean} Whether string is in trie
-         */
-        has: function(s) {
-            return this.get(s) !== null;
-        }
+    /**
+     * Create terminal node
+     *
+     * @method _setTerminal
+     * @private
+     * @chainable
+     * @param {any} [d] Data to associate with node
+     */
+    Trieson.prototype._setTerminal = function(d) {
+        this._value = (typeof d == 'undefined') ? true : d;
+        return this;
     };
+
+    /**
+     * Whether is terminal node
+     *
+     * @method _isTerminal
+     * @private
+     * @return {Boolean} Whether is terminal node
+     */
+    Trieson.prototype._isTerminal = function() {
+        return '_value' in this;
+    };
+
+    /**
+     * Add a string to the trie
+     *
+     * @method add
+     * @chainable
+     * @param {String} s String to add
+     * @param {any} [d] Data to associate with string
+     */
+    Trieson.prototype.add = function(s, d) {
+        var n = this;
+
+        for(var i = 0, l = s.length; i < l; i++) {
+            var c = s[i];
+
+            if(c in n) {
+                // already exists
+            } else {
+                n[c] = new Trieson();
+                n._data.push(c);
+            }
+
+            n = n[c];
+        }
+
+        n._setTerminal(d);
+
+        return this;
+    };
+
+    /**
+     * Get data associated with string
+     *
+     * @method get
+     * @param {String} s String to query
+     * @return {any} Data associated with string
+     */
+    Trieson.prototype.get = function(s) {
+        var n = this;
+
+        for (var i = 0, l = s.length; i < l; i++) {
+            var c = s[i];
+
+            if(c in n) {
+                n = n[c];
+
+                if(i == s.length - 1 && n._isTerminal()) {
+                    // reached end of string and have string
+                    return n._value;
+                }
+            } else {
+                break;
+            }
+        }
+
+        return null;
+    };
+
+    /**
+     * Test whether a string is in the trie
+     *
+     * @method has
+     * @param {String} s String to test
+     * @return {Boolean} Whether string is in trie
+     */
+    Trieson.prototype.has = function(s) {
+        return this.get(s) !== null;
+    };
+
+    /**
+     * Provide possible matches
+     *
+     * @method match
+     * @param {String} s String to match
+     * @param {Number} [limit] Maximum numbner of matches
+     * @return {Array} List of possible matches
+     */
+    Trieson.prototype.match = function(s, limit) {
+        limit = limit || 0;
+        var matches = [],
+            o = [],
+            c = 0;
+
+        function next(t, v) {
+            if(v) {
+                var i = v[0],
+                    r = v.substr(1);
+
+                if(i in t) {
+                    o.push(i);
+                    next(t[i], r);
+                }
+            } else {
+                if(c >= limit) return true;
+
+                if(t._isTerminal()) {
+                    matches.push(o.join(''));
+                    c++;
+                }
+
+                var ks = t._data;
+
+                for(var i = 0, l = ks.length; i < l; i++) {
+                    var k = ks[i];
+                    o.push(k);
+                    if(next(t[k])) return true;
+                }
+            }
+
+            o.pop();
+        }
+
+        next(this, s);
+
+        return matches;
+    };
+
+    return Trieson;
 });
