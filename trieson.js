@@ -9,6 +9,23 @@
     else if(typeof define === 'function' && define.amd) define(definition);
     else context[name] = definition();
 })("Trieson", this, function() {
+    function RandomContainer() {
+        this._data = [];
+        this.length = 0;
+    }
+
+    RandomContainer.prototype.add = function(a) {
+        this._data.push(a);
+        this.length = this._data.length;
+        return this;
+    };
+
+    RandomContainer.prototype.get = function(i) {
+        if(typeof i == 'number') return this._data[i];
+        var rn = Math.floor(Math.random() * this.length);
+        return this._data[rn];
+    };
+
     /**
      * Trieson constructor
      *
@@ -16,8 +33,7 @@
      * @constructor
      */
     function Trieson() {
-        this._data = [];
-        this._chooser = null;
+        this._data = new RandomContainer();
     }
 
     /**
@@ -62,7 +78,7 @@
                 // already exists
             } else {
                 n[c] = new Trieson();
-                n._data.push(c);
+                n._data.add(c);
             }
 
             n = n[c];
@@ -146,7 +162,7 @@
                 var ks = t._data;
 
                 for(var i = 0, l = ks.length; i < l; i++) {
-                    var k = ks[i];
+                    var k = ks.get(i);
                     o.push(k);
                     if(next(t[k])) return true;
                 }
