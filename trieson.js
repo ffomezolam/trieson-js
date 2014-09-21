@@ -32,8 +32,10 @@
      * @class Trieson
      * @constructor
      */
-    function Trieson() {
+    function Trieson(opts) {
         this._data = new RandomContainer();
+
+        if(opts && 'depth' in opts) this._depth = opts.depth;
     }
 
     /**
@@ -174,6 +176,28 @@
         next(this, s);
 
         return matches;
+    };
+
+    /**
+     * Generate a random string from trie
+     *
+     * @method generate
+     * @return {String} Random string
+     */
+    Trieson.prototype.generate = function() {
+        var n = this,
+            d = n._data,
+            s = [];
+
+        while(d.length) {
+            var k = d.get();
+            s.push(k);
+            n = n[k];
+            d = n._data;
+            if(n._isTerminal() && Math.random() >= 0.5) break;
+        }
+
+        return s.join('');
     };
 
     return Trieson;
