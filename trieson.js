@@ -1,5 +1,5 @@
 /**
- * Trie implementation with trecherous motivations
+ * Trie implementations with some rebellious features
  *
  * @module trieson
  */
@@ -28,6 +28,8 @@
 
     /**
      * Trieson constructor
+     * TODO: Switch container types
+     * TODO: Allow removal of entries (maybe?)
      *
      * @class Trieson
      * @constructor
@@ -198,6 +200,18 @@
         }
 
         return s.join('');
+    };
+
+    /**
+     * Get collection of all possible strings
+     *
+     * @method all
+     * @return {Array} All strings in trie
+     */
+    Trieson.prototype.all = function() {
+        var all = [],
+            str = [],
+            n = this;
     };
 
     return Trieson;
