@@ -42,16 +42,28 @@
         return this;
     };
 
-    TriesonNode.prototype.get = function(c) {
-        if(typeof c == 'undefined') return this[this._data.get()];
-        return this[c];
+    /**
+     * This gets a random letter or gets a random letter following argument
+     */
+    TriesonNode.prototype.get = function(s) {
+        if(typeof s == 'undefined') return this._data.get();
+
+        var n = this;
+
+        for(var i = 0, l = s.length; i < l; i++) {
+            var c = s[i];
+            if(!n._data.length || !(c in this)) return null;
+            n = n[c];
+        }
+
+        return n._data.length ? n._data.get() : null;
     };
 
     TriesonNode.prototype.each = function(fn) {
         if(!this._data || !this._data.length) return;
         for(var i = 0, l = this._data.length; i < l; i++) {
             var c = this._data.get(i),
-                n = this.get(c);
+                n = this[c];
             fn(c);
             n.map(fn);
         }
@@ -80,7 +92,8 @@
             searchDepth: (opts && 'searchDepth' in opts) ? opts.searchDepth : this._depth,
             maxLength: (opts && 'maxLength' in opts) ? opts.maxLength : 10,
             minLength: (opts && 'minLength' in opts) ? opts.minLength : 3,
-
+            endings: (opts && 'endings' in opts) ? opts.endings : true,
+            beginnings: (opts && 'beginnings' in opts) ? opts.beginnings : true
         };
     }
 
@@ -98,9 +111,11 @@
         n.add(this._chars.start);
         n = n.get(this._chars.start);
 
-        for(var i = 0, j = 0, l = a.length; i < l; i++, j = i % this._depth) {
+        for(var i = 0, l = a.length; i < l; i++) {
+            // TODO: this isn't adding characters correctly - needs to
+            // backtrack
             n.add(a[i]);
-            n = n.get(a[i]);
+            n = n.[a[i]];
         }
 
         n.add(this._chars.end);
@@ -112,12 +127,46 @@
      * Get a string from the trie
      *
      * @method get
-     * @return {String} String or null if doesn't exist
+     * @return {String} String
      */
-    MoreTrieson.prototype.get = function(s) {
-        var n = this._root;
+    MoreTrieson.prototype.get = function() {
+        var n = this._root,
+            word = [],
+            i = d = jj = 0,
+            c = null;
 
-        for(var i = 0, l = s.length; i < l; i++) {
+        // 1. get first character
+        if(this._opts.beginnings) {
+            word.push(this._chars.start);
+            n = n[this._chars.start];
+        } else {
+            c = n.get();
+            word.push(c);
+            n = n[c];
+        }
+
+        // 2. do initial run to search depth
+        for(d = 1; d <= this._opts.searchDepth; d++) {
+            c = n.get();
+            // TODO: check for terminating char
+            word.push(c);
+            n = n[c];
+        }
+
+        i = word.length - 1; // last index
+        n = this._root;      // reset starting node
+
+        // 3. keep going based on parameters
+        while(true) {
+            jj = d;
+            var c = null;
+            while(c === null) {
+                var chars = jj ? word.slice(-jj).join('') : null;
+                c = n.get(chars || undefined);
+                jj--;
+            }
+            word.push(c);
+            i++;
         }
     };
 
