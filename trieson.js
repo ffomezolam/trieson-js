@@ -35,7 +35,7 @@
      * @constructor
      */
     function Trieson(opts) {
-        this._data = new RandomContainer();
+        this._data = (opts && 'container' in opts) ? new opts.container : new RandomContainer();
 
         if(opts && 'depth' in opts) this._depth = opts.depth;
     }
