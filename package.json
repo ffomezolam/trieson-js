@@ -1,5 +1,25 @@
 {
-  "dependencies": {
-    "mocha": "^10.1.0"
-  }
+  "name": "trieson",
+  "type": "module",
+  "version": "0.1.0",
+  "description": "Javascript trie class with treacherous intent",
+  "main": "main.js",
+  "devDependencies": {
+    "chai": "*",
+    "mocha": "*"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ffomezolam/trieson-js.git"
+  },
+  "keywords": [],
+  "author": "Andrew Malozemoff",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ffomezolam/trieson-js/issues"
+  },
+  "homepage": "https://github.com/ffomezolam/trieson-js#readme"
 }

@@ -3,14 +3,14 @@
 /**
  * Return all sequential combinations of minimum length.
  */
-export function seq_all(seq, min=2) {
-    slen = seq.length
-    results = []
+function seq_all(seq, min=2) {
+    let slen = seq.length
+    let results = []
 
-    for(let i = 0; i < slen - min; i++) {
-        for(let j = i+(min - 1); j < slen; j++) {
+    for(let i = 0; i <= slen - min; i++) {
+        for(let j = i + (min - 1); j <= slen; j++) {
             if(j - i >= min) {
-                results.append(seq.slice(i, j))
+                results.push(seq.slice(i, j))
             }
         }
     }
@@ -21,13 +21,13 @@ export function seq_all(seq, min=2) {
 /**
  * Return sequential combinations of minimum length to end of sequence.
  */
-export function seq_to_end(seq, min=2) {
-    slen = seq.length
-    results = []
+function seq_to_end(seq, min=2) {
+    let slen = seq.length
+    let results = []
 
     for(let i = 0; i < slen; i++) {
         if(slen - i >= 2) {
-            results.append(seq.slice(i))
+            results.push(seq.slice(i))
         }
     }
 
@@ -37,6 +37,8 @@ export function seq_to_end(seq, min=2) {
 /**
  * Return entire sequence.
  */
-export function none(seq) {
+function none(seq) {
     return [seq]
 }
+
+export {seq_all, seq_to_end, none}
