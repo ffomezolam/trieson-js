@@ -134,6 +134,8 @@ class Triesonode {
 
     /**
      * Recursive depth-first traversal over all nodes
+     *
+     * TODO: Can we make this a generator? Otherwise has to return array
      */
     traverse(pre, post) {
         let children = Object.values(this._children)
